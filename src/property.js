@@ -130,13 +130,15 @@
   };
 
   function setter(value) {
-    if (this._stepVersion === stepVersion) {
-      this._stepVersion = ++stepVersion;
-      this._log(this.name() + " is raising step version to " + stepVersion);
-    }
-
     var previousValue = this._value;
     this._value = value;
+
+    if (this._stepVersion === stepVersion) {
+      stepVersion++;
+      this._log(function() {
+        return this.name() + " is raising step version to " + stepVersion;
+      }, this);
+    }
     this._stepVersion = stepVersion;
 
     if (this._value !== previousValue) {
