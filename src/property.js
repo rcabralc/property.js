@@ -42,7 +42,8 @@
 
   return {
     get: function() {
-      this._log('getting value of ' + this.name());
+      this._log(function() { return 'getting value of ' + this.name(); },
+                this);
       dependedOn(this);
       return this._value;
     },
@@ -84,10 +85,10 @@
       var observed = this._observed || [],
           length = observed.length,
           i = -1;
-      this._log("disposing " + this.name());
+      this._log(function() { return "disposing " + this.name(); }, this);
       while (++i < length) observed[i].unsubscribe(this._subscriber);
       this._observed = undefined;
-      return this._log("disposed " + this.name());
+      return this._log(function() { return "disposed " + this.name(); }, this);
     },
 
     subscribe: function(fn) {
@@ -120,7 +121,10 @@
     },
 
     debug: function() {
-      this._log = function(message) { console.log(message); return this; };
+      this._log = function(fn, thisArg) {
+        console.log(fn.bind(thisArg)());
+        return this;
+      };
       return this;
     },
 
@@ -142,9 +146,10 @@
     this._stepVersion = stepVersion;
 
     if (this._value !== previousValue) {
-      this._log(
-        "changed " + this.name() + ": " + previousValue + " -> " + value
-      );
+      this._log(function() {
+        return "changed " + this.name() + ": " +
+                previousValue + " -> " + value;
+      }, this);
       this.touch();
     }
 
@@ -160,18 +165,26 @@
   }
 
   function ensureUpdated(prop) {
-    prop._log("ensuring that " + prop.name() + " is fully updated");
+    prop._log(function() {
+      return "ensuring that " + prop.name() + " is fully updated";
+    });
 
     if (prop._stepVersion < stepVersion) {
       if (prop._observed && prop._subscriber) {
-        prop._log(prop.name() + " needs recomputation").set(recompute(prop));
+        prop._log(function() {
+          return prop.name() + " needs recomputation";
+        }).set(recompute(prop));
       } else {
         prop._stepVersion = stepVersion;
       }
 
-      prop._log(prop.name() + " reached step version " + stepVersion);
+      prop._log(function() {
+        return prop.name() + " reached step version " + stepVersion;
+      });
     } else {
-      prop._log(prop.name() + " is already fully updated");
+      prop._log(function() {
+        return prop.name() + " is already fully updated";
+      });
     }
   }
 
