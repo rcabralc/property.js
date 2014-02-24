@@ -1,6 +1,6 @@
 {
   "name": "property",
-  "description": "JavaScript objects with automatic dependency tracking.",
+  "description": "JavaScript objects with automatic dependency tracking",
   "license": "MIT",
   "version": "0.0.1",
   "repository": {
